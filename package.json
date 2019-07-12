@@ -4,8 +4,9 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "start": "echo \"Error: no test specified\" && exit 1",
-    "dev": "echo \"Error: no test specified\" && exit 1",
+    "start": "node ./dist/server.js",
+    "build": "rm -rf dist && webpack",
+    "dev": "nodemon ./server.js --exec babel-node",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -31,6 +32,11 @@
     "@babel/core": "^7.5.4",
     "@babel/node": "^7.5.0",
     "@babel/preset-env": "^7.5.4",
-    "nodemon": "^1.19.1"
+    "babel-loader": "^8.0.6",
+    "morgan": "^1.9.1",
+    "nodemon": "^1.19.1",
+    "webpack": "^4.35.3",
+    "webpack-cli": "^3.3.5",
+    "webpack-node-externals": "^1.7.2"
   }
 }
