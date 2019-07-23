@@ -8,6 +8,8 @@ import { Strategy as LocalStrategy } from 'passport-local';
 import ReflectionController from './src/controllers/ReflectionController';
 import UserController from './src/controllers/UserController';
 
+import testMiddleware from './src/middleware/test.middleware';
+
 const app = express();
 const port = 3000;
 
@@ -55,10 +57,10 @@ app.get('/', (req, res) => {
     return res.status(200).send({ 'message': 'Hello world from Express JS blah !' });
 });
 
-app.post('/api/v1/reflections', ReflectionController.create);
-app.get('/api/v1/reflections', ReflectionController.getAll);
-app.get('/api/v1/reflections/:id', ReflectionController.getOne);
-app.delete('/api/v1/reflections/:id', ReflectionController.delete);
+app.post('/api/v1/reflections', [testMiddleware, ReflectionController.create]);
+app.get('/api/v1/reflections', [testMiddleware, ReflectionController.getAll]);
+app.get('/api/v1/reflections/:id', [testMiddleware, ReflectionController.getOne]);
+app.delete('/api/v1/reflections/:id', [testMiddleware, testMiddleware]);
 
 app.get('/api/v1/users', UserController.getAll);
 app.get('/api/v1/users/:id', UserController.getById);

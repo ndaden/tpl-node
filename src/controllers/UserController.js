@@ -1,5 +1,5 @@
 import User from '../models/User';
-import {hashSync, compareSync} from 'bcrypt';
+import {hashSync, compareSync} from 'bcryptjs';
 const saltRounds = 10;
 
 const UserController = {
