@@ -21,17 +21,29 @@ const UserController = {
         .then(result => res.send(result),
             error => res.status(500).send(error));
     },
-    getByCriterias(req, res){
-        User.find({username: req.body.username}).exec()
+    getUserById(id, cb) {
+        console.log("getting user by id");
+        User.findById(id).exec()
         .then(result => {
-            if(result.length > 0 && compareSync(req.body.password, result[0].password))
+            let user = result[0];
+            user.password = undefined;
+            return cb(null, user);
+        },
+        error => cb(error, null));
+    },
+    authenticateUser(username, password, cb){
+        User.find({username: username}).exec()
+        .then(result => {
+            if(result.length > 0 && compareSync(password, result[0].password))
             {
-                res.send(result);
+                let user = result[0];
+                user.password = undefined;
+                return cb(null, user);
             } else 
             {
-                res.status(404).send([]);
+                return cb("invalid username or password", null);
             }
-        }, error => res.status(500).send(error));
+        }, error => cb("unknown error", null));
     }
 };
 

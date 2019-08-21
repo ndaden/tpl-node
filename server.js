@@ -9,6 +9,7 @@ import ReflectionController from './src/controllers/ReflectionController';
 import UserController from './src/controllers/UserController';
 
 import testMiddleware from './src/middleware/test.middleware';
+import authMiddleware from './src/middleware/auth.middleware';
 
 const app = express();
 const port = 3000;
@@ -19,38 +20,43 @@ mongoose.connect('mongodb://localhost/users', {useNewUrlParser: true })
 
 mongoose.set('useCreateIndex', true);
 
-const user1 = {username: "nabil", password: "pass"};
-
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(morgan('dev'));
 app.use(passport.initialize());
 app.use(passport.session());
 
-passport.use(new LocalStrategy(
+passport.use('local', new LocalStrategy(
     (username, password, done) => {
-        console.log(`received : ${username} - ${password}`);
-        if(username === user1.username && password === user1.password){
-            return done(null, user1);
-        }
-
-        return done(null,false, { message: "Incorrect login and/or password" });
+        UserController.authenticateUser(username, password, (error, user)=>
+        {
+            if(error){
+                return done(error)
+            }
+            return done(null, user);
+        });
     }
 ));
 
 passport.serializeUser((user, done) => {
-    done(null, user);
+    done(null, user.id);
 });
 
-passport.deserializeUser((user, done) => {
-    setTimeout(done(null, user), 1000);
+passport.deserializeUser((id, done) => {
+    UserController.getUserById(id, (err, user)=> done(err,user));
 });
 
 app.post('/login',
     passport.authenticate('local'),
     (req, res) => {
-        console.log(req.user);
-        res.redirect('http://www.google.com/');
+        console.log("CONNECTE : " + req.user);
+        req.logIn(req.user, err => {
+            if(err){
+            console.log("ERROR Login: " + err)
+            }
+            return res.redirect('/api/v1/users');
+        });
+        
     });
 
 app.get('/', (req, res) => {
@@ -62,10 +68,9 @@ app.get('/api/v1/reflections', [testMiddleware, ReflectionController.getAll]);
 app.get('/api/v1/reflections/:id', [testMiddleware, ReflectionController.getOne]);
 app.delete('/api/v1/reflections/:id', [testMiddleware, testMiddleware]);
 
-app.get('/api/v1/users', UserController.getAll);
+app.get('/api/v1/users', [authMiddleware, UserController.getAll]);
 app.get('/api/v1/users/:id', UserController.getById);
 app.post('/api/v1/users', UserController.create);
-app.post('/api/v1/user', UserController.getByCriterias);
 
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
