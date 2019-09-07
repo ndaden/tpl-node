@@ -37,6 +37,7 @@
     "@babel/node": "^7.5.0",
     "@babel/preset-env": "^7.5.4",
     "babel-loader": "^8.0.6",
+    "file-loader": "^4.2.0",
     "morgan": "^1.9.1",
     "nodemon": "^1.19.1",
     "webpack": "^4.35.3",

@@ -27,6 +27,11 @@ module.exports = {
         use: {
           loader: "babel-loader"
         }
+      },
+      { 
+        test: /\.(jpe?g|gif|png|svg|woff|ttf|wav|mp3|key)$/,
+        exclude: /node_modules/, 
+        loader: "file-loader" 
       }
     ]
   },

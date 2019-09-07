@@ -7,9 +7,11 @@ import { Strategy as LocalStrategy } from 'passport-local';
 
 import ReflectionController from './src/controllers/ReflectionController';
 import UserController from './src/controllers/UserController';
+import AuthentificationController from './src/controllers/AuthenticationController';
 
 import testMiddleware from './src/middleware/test.middleware';
 import authMiddleware from './src/middleware/auth.middleware';
+import AuthenticationController from './src/controllers/AuthenticationController';
 
 const app = express();
 const port = 3000;
@@ -71,6 +73,9 @@ app.delete('/api/v1/reflections/:id', [testMiddleware, testMiddleware]);
 app.get('/api/v1/users', [authMiddleware, UserController.getAll]);
 app.get('/api/v1/users/:id', UserController.getById);
 app.post('/api/v1/users', UserController.create);
+
+app.post('/api/auth', AuthenticationController.authenticate);
+app.get('/api/auth', AuthenticationController.test);
 
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
