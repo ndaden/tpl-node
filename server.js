@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import morgan from 'morgan';
 import passport from 'passport';
 import bodyParser from 'body-parser';
+import cors from 'cors';
 import { Strategy as LocalStrategy } from 'passport-local';
 
 import ReflectionController from './src/controllers/ReflectionController';
@@ -22,6 +23,12 @@ mongoose.connect('mongodb://localhost/users', {useNewUrlParser: true })
 
 mongoose.set('useCreateIndex', true);
 
+const corsOptions = {
+    origin: 'http://localhost:8080',
+    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(morgan('dev'));
