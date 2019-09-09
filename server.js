@@ -15,7 +15,7 @@ import authMiddleware from './src/middleware/auth.middleware';
 import AuthenticationController from './src/controllers/AuthenticationController';
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 mongoose.connect('mongodb://localhost/users', {useNewUrlParser: true })
         .then(() => console.log('Connected to MongoDB !'))
