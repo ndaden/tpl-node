@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node ./dist/server.js",
     "build": "rm -rf dist && webpack",
+    "heroku-postbuild": "webpack -p",
     "dev": "nodemon ./server.js --exec babel-node",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
