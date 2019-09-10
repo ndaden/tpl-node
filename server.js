@@ -16,8 +16,20 @@ import AuthenticationController from './src/controllers/AuthenticationController
 
 const app = express();
 const port = process.env.PORT || 3000;
+const mongoUser = process.env.MONGOUSER || '';
+const mongoPwd = process.env.MONGOPWD || '';
+const mongoUri = process.env.MONGOURI || 'localhost';
+const mongoDbName = process.env.MONGODBNAME || 'users';
+let uri = '';
 
-mongoose.connect('mongodb://localhost/users', {useNewUrlParser: true })
+if (mongoUser && mongoPwd)
+{
+    uri = `mongodb+srv://${mongoUser}:${mongoPwd}@${mongoUri}/${mongoDbName}?retryWrites=true&w=majority`;
+} else {
+    uri = `mongodb://${mongoUri}/${mongoDbName}`;
+}
+
+mongoose.connect(uri, {useNewUrlParser: true })
         .then(() => console.log('Connected to MongoDB !'))
         .catch(error => console.log(error));
 
