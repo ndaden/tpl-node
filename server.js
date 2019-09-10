@@ -20,6 +20,7 @@ const mongoUser = process.env.MONGOUSER || '';
 const mongoPwd = process.env.MONGOPWD || '';
 const mongoUri = process.env.MONGOURI || 'localhost';
 const mongoDbName = process.env.MONGODBNAME || 'users';
+const frontAppUri = process.env.FRONTAPPURI || 'http://localhost:8080';
 let uri = '';
 
 if (mongoUser && mongoPwd)
@@ -36,7 +37,7 @@ mongoose.connect(uri, {useNewUrlParser: true })
 mongoose.set('useCreateIndex', true);
 
 const corsOptions = {
-    origin: 'http://localhost:8080',
+    origin: frontAppUri,
     optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
 };
 
