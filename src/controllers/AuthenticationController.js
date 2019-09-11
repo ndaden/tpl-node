@@ -26,13 +26,13 @@ const AuthenticationController = {
                 const privateKEY  = readFileSync(keyPath, 'utf-8');
 
                 const token = sign(user.toJSON(), privateKEY, signOptions);
-                
-                res.send(token);
+                let response = { success: true, token: token, message: "Vous êtes connectés"}
+                res.send(response);
             } else 
             {
-                res.send({ error : "Invalid credentials" });
+                res.send({ success: false, message : "Nom d'utilisateur et/ou mot de passe invalide(s)" });
             }
-        }, err => res.send({ error : "Technical error" }));
+        }, err => res.send({ success: false, message : "Technical error" }));
     },
 
     test(req, res){

@@ -7,7 +7,29 @@ const UserController = {
         let newUser = new User(req.body);
         newUser.password = hashSync(req.body.password, saltRounds);
         newUser.save()
-        .then(result => res.send(result), error => res.status(500).send(error));
+        .then(
+            created => {
+                let result = {
+                    success: true,
+                    user : {
+                        username : created.username, email: created.email
+                    }, message : "Félicitations ! votre compte a été créé avec succés."
+                };
+                
+                res.send(result);
+            }, 
+            error => {
+                let returnedError = { success: false, message : "Une erreur technique s'est produite. merci de contacter l'administrateur du site."}
+                if(error.name && error.name == "MongoError"){
+                    if(error.code == 11000 && error.keyPattern.email){
+                        returnedError.message = "Un compte avec le même e-mail existe déjà.";
+                    }
+                    if(error.code == 11000 && error.keyPattern.username){
+                        returnedError.message = "Un compte avec le même nom d'utilisateur existe déjà.";
+                    }
+                }
+                res.status(500).send(returnedError)
+            });
     },
     getAll(req, res) {
         try {
