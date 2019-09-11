@@ -23,7 +23,7 @@ const AuthenticationController = {
                 };
 
                 const keyPath = path.resolve('./src/keys/private.key');
-                const privateKEY  = readFileSync(keyPath, 'utf-8');
+                const privateKEY  = process.env.PRIVATE_KEY || readFileSync(keyPath, 'utf-8');
 
                 const token = sign(user.toJSON(), privateKEY, signOptions);
                 let response = { success: true, token: token, message: "Vous êtes connectés"}
@@ -39,7 +39,7 @@ const AuthenticationController = {
         const authHeader = req.headers['authorization'];
         if(authHeader != undefined){
             const keyPath = path.resolve('./src/keys/public.key');
-            const publicKey  = readFileSync(keyPath, 'utf-8');
+            const publicKey  = process.env.PUBLIC_KEY || readFileSync(keyPath, 'utf-8');
             const token = authHeader.split(' ')[1];
             verify(token, publicKey, (error, decoded)=>{
                 if(error){
