@@ -44,13 +44,13 @@ const AuthenticationController = {
             verify(token, publicKey, (error, decoded)=>{
                 if(error){
                     console.log(error);
-                    res.send({success: false, data: 'Unauthorized'});
+                    res.send({isAuthenticated: false, data: 'Unauthorized'});
                 } else {
-                    res.send({success: true, data: decoded});
+                    res.send({isAuthenticated: true, data: decoded});
                 }
             });
         } else {
-            res.send({success: false, data: 'Unauthorized'});
+            res.send({isAuthenticated: false, data: 'Unauthorized'});
         }
     }
 };
