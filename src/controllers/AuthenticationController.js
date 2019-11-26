@@ -26,7 +26,7 @@ const AuthenticationController = {
                 const privateKEY  = process.env.PRIVATE_KEY || readFileSync(keyPath, 'utf-8');
 
                 const token = sign(user.toJSON(), privateKEY, signOptions);
-                let response = { success: true, token: token, message: "Vous êtes connectés"}
+                let response = { success: true, token: token, message: "Vous êtes connectés", redirect: req.query.redirect }
                 res.send(response);
             } else 
             {

@@ -1,4 +1,5 @@
 import User from '../models/User';
+import { SendToken } from '../service/EmailService';
 import {hashSync, compareSync} from 'bcryptjs';
 const saltRounds = 10;
 
@@ -15,6 +16,8 @@ const UserController = {
                         username : created.username, email: created.email
                     }, message : "Félicitations ! votre compte a été créé avec succés."
                 };
+
+                SendToken(created.email, "12345").then(() => { console.log('Sent !')});
                 
                 res.send(result);
             }, 

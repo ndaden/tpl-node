@@ -15,6 +15,24 @@ const UserSchema = new Schema({
     password: {
         type: String,
         trim: true
+    },
+    isActive: {
+        type: Boolean,
+        default: false
+    },
+    activationDate: {
+        type: Date
+    },
+    validationCode: {
+        type: String,
+        maxlength: 6,
+        trim: true,
+    },
+    validationCodeSendDate: {
+        type: Date
+    },
+    validationCodeExpirationDate: {
+        type: Date
     }
 });
 
