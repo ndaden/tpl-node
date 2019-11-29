@@ -1,11 +1,28 @@
 import User from '../models/User';
+import ActivationCode from '../models/ActivationCode';
 import { SendToken } from '../service/EmailService';
 import {hashSync, compareSync} from 'bcryptjs';
+import mongoose from 'mongoose';
+import moment from 'moment';
 const saltRounds = 10;
 
 const UserController = {
     create(req, res) {
+        //1. creation du code d'activation
+        const code = generateActivationCode(6);
+
+        let newActivationCode = new ActivationCode({
+            _id: new mongoose.Types.ObjectId(),
+            validationCode: code,
+            validationCodeSendDate: moment(),
+            validationCodeExpirationDate: moment().add(30, 'minute')
+        });
+        newActivationCode.save();
+
+        //2. creation du user
         let newUser = new User(req.body);
+        newUser.isActive = false;
+        newUser.activationCode = newActivationCode.id;
         newUser.password = hashSync(req.body.password, saltRounds);
         newUser.save()
         .then(
@@ -17,7 +34,8 @@ const UserController = {
                     }, message : "Félicitations ! votre compte a été créé avec succés."
                 };
 
-                SendToken(created.email, "12345").then(() => { console.log('Sent !')});
+                //3. envoi de l'e-mail avec le code d'activation
+                SendToken(created.email, code).then(() => { console.log('Sent !')});
                 
                 res.send(result);
             }, 
@@ -69,7 +87,20 @@ const UserController = {
                 return cb("invalid username or password", null);
             }
         }, error => cb("unknown error", null));
-    }
+    },
 };
+
+/**
+ * Genere un code d'activation aleatoire 
+ * @param {*} length : longueur du code d'activation
+ */
+const generateActivationCode = (length) => {
+    let code = ""; 
+    const alphaNum = 'ABCDEFGHIJKLMNOPQRSTUVWXY1234567890'
+    for(var i=0; i< length; i++){
+        code = `${code}${alphaNum.substr(Math.random()*alphaNum.length, 1)}` ;
+    }
+    return code;
+}
 
 export default UserController;

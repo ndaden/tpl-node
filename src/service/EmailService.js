@@ -13,7 +13,7 @@ const SendToken = async (destination, value) => {
       });
 
       await transporter.sendMail({
-        from: `${MAILING_SENDER_NAME} <${config.MAILING_USERNAME}>`, // sender address
+        from: `${config.MAILING_SENDER_NAME} <${config.MAILING_USERNAME}>`, // sender address
         to: destination, // list of receivers
         subject: "Account Activation Code", // Subject line
         text: "Your validation token is " + value, // plain text body

@@ -1,4 +1,5 @@
 import mongoose, {Schema} from 'mongoose';
+import ActivationCode from './ActivationCode';
 
 const UserSchema = new Schema({
     username: {
@@ -23,17 +24,10 @@ const UserSchema = new Schema({
     activationDate: {
         type: Date
     },
-    validationCode: {
-        type: String,
-        maxlength: 6,
-        trim: true,
+    activationCode: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'activationCode'
     },
-    validationCodeSendDate: {
-        type: Date
-    },
-    validationCodeExpirationDate: {
-        type: Date
-    }
 });
 
 const User = mongoose.model("user", UserSchema);
