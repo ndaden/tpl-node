@@ -13,7 +13,6 @@ const SendToken = async (destination, value) => {
   });
 
   if (config.MAILING_TEST_MODE) {
-
     const testAccount = await nodemailer.createTestAccount();
     transporter = nodemailer.createTransport({
       host: "smtp.ethereal.email",
