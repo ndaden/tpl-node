@@ -10,47 +10,88 @@ const UserController = {
     create(req, res) {
         //1. creation du code d'activation
         const code = generateActivationCode(6);
-
-        let newActivationCode = new ActivationCode({
-            _id: new mongoose.Types.ObjectId(),
-            validationCode: code,
-            validationCodeSendDate: moment(),
-            validationCodeExpirationDate: moment().add(30, 'minute')
-        });
-        newActivationCode.save();
+        const activationCodeId = new mongoose.Types.ObjectId();
 
         //2. creation du user
         let newUser = new User(req.body);
         newUser.isActive = false;
-        newUser.activationCode = newActivationCode.id;
+        newUser.activationCode = activationCodeId;
         newUser.password = hashSync(req.body.password, saltRounds);
         newUser.save()
         .then(
             created => {
+                let newActivationCode = new ActivationCode({
+                    _id: activationCodeId,
+                    validationCode: code,
+                    validationCodeSendDate: moment(),
+                    validationCodeExpirationDate: moment().add(30, 'minute')
+                });
+                newActivationCode.save();
+
                 let result = {
                     success: true,
                     user : {
                         username : created.username, email: created.email
-                    }, message : "Félicitations ! votre compte a été créé avec succés."
+                    }, message : "Félicitations ! votre compte a été créé avec succés. Un code d'activation vous a été envoyé sur : " + created.email
                 };
 
                 //3. envoi de l'e-mail avec le code d'activation
-                SendToken(created.email, code).then(() => { console.log('Sent !')});
-                
-                res.send(result);
-            }, 
-            error => {
+                SendToken(created.email, code)
+                    .then(() => { 
+                        res.send(result);
+                    })
+                    .catch((error) => {
+                        result.success = false;
+                        result.message = "Un problème est survenu lors de l'envoi de votre code d'activation.";
+                        console.log(error);
+                        res.send(result);
+                    });
+            }).catch((error) => {
                 let returnedError = { success: false, message : "Une erreur technique s'est produite. merci de contacter l'administrateur du site."}
                 if(error.name && error.name == "MongoError"){
-                    if(error.code == 11000 && error.keyPattern.email){
-                        returnedError.message = "Un compte avec le même e-mail existe déjà.";
-                    }
-                    if(error.code == 11000 && error.keyPattern.username){
-                        returnedError.message = "Un compte avec le même nom d'utilisateur existe déjà.";
+                    if(error.code == 11000){
+                        returnedError.message = "Un compte avec le même e-mail ou nom d'utilisateur existe déjà.";
                     }
                 }
-                res.status(500).send(returnedError)
+                res.status(500).send(returnedError);
             });
+    },
+    activate(req, res) {
+        console.log(req.body);
+        const receivedCode = req.body.activationCode;
+        const email = req.body.email;
+
+        User.find({email: email}).exec()
+        .then((result) => {
+            const user = result[0];
+            const activationCodeId = user.activationCode;
+            if(!user.isActive){
+            ActivationCode.findById(activationCodeId).exec().then((code) => {
+                if(code.validationCode === receivedCode && moment().isBefore(code.validationCodeExpirationDate)){
+                    user.isActive = true;
+                    user.activationDate = moment();
+                    user.activationCode = null;
+                    user.save();
+                    code.remove();
+                    res.send({
+                        message : "Votre compte a été activé avec succés !"
+                    });
+                }else{
+                    res.send({
+                        message : "Code incorrect ou expiré"
+                    });
+                }
+            })
+        }else{
+            res.status(500).send({
+                message : "Impossible d'effectuer cette action"
+            });
+        }
+        }).catch(error => {
+            console.log(error);
+            res.status(500).send({ message : "Impossible d'effectuer cette action"})
+        });
+
     },
     getAll(req, res) {
         try {

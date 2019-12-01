@@ -1,5 +1,4 @@
 import mongoose, {Schema} from 'mongoose';
-import ActivationCode from './ActivationCode';
 
 const UserSchema = new Schema({
     username: {
