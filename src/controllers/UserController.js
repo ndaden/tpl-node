@@ -74,22 +74,25 @@ const UserController = {
                     user.save();
                     code.remove();
                     res.send({
+                        success: true,
                         message : "Votre compte a été activé avec succés !"
                     });
                 }else{
                     res.send({
+                        success: false,
                         message : "Code incorrect ou expiré"
                     });
                 }
             })
         }else{
             res.status(500).send({
+                success: false,
                 message : "Impossible d'effectuer cette action"
             });
         }
         }).catch(error => {
             console.log(error);
-            res.status(500).send({ message : "Impossible d'effectuer cette action"})
+            res.status(500).send({ success: false, message : "Impossible d'effectuer cette action"})
         });
 
     },
