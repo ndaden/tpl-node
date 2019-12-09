@@ -60,6 +60,7 @@ const UserController = {
         console.log(req.body);
         const receivedCode = req.body.activationCode;
         const email = req.body.email;
+        const renew = req.body.renew;
 
         User.find({email: email}).exec()
         .then((result) => {
@@ -67,7 +68,20 @@ const UserController = {
             const activationCodeId = user.activationCode;
             if(!user.isActive){
             ActivationCode.findById(activationCodeId).exec().then((code) => {
-                if(code.validationCode === receivedCode && moment().isBefore(code.validationCodeExpirationDate)){
+                if(renew) {
+                    code.validationCodeSendDate = moment();
+                    code.validationCodeExpirationDate = moment().add(30, 'minute');
+                    code.save();
+                    SendToken(email, code.validationCode)
+                    .then(() => { 
+                        res.send({ success: true, message: "Le code d'activation a été envoyé à " + email });
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                        res.send({ success: false, message: "Un problème est survenu lors de l'envoi de votre code d'activation." });
+                    });
+                }
+                else if(code.validationCode === receivedCode && moment().isBefore(code.validationCodeExpirationDate)){
                     user.isActive = true;
                     user.activationDate = moment();
                     user.activationCode = null;
@@ -94,6 +108,9 @@ const UserController = {
             console.log(error);
             res.status(500).send({ success: false, message : "Impossible d'effectuer cette action"})
         });
+
+    },
+    renewActivationCode(req, res) {
 
     },
     getAll(req, res) {

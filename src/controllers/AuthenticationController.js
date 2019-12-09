@@ -12,7 +12,8 @@ const AuthenticationController = {
             {
                 let user = result[0];
                 user.password = undefined;
-
+                user.isActive = undefined;
+                user.activationCode = undefined;
                 // SIGNING OPTIONS
                 const signOptions = {
                     issuer:  'Nabil Corp',
@@ -43,10 +44,17 @@ const AuthenticationController = {
             const token = authHeader.split(' ')[1];
             verify(token, publicKey, (error, decoded)=>{
                 if(error){
-                    console.log(error);
                     res.send({isAuthenticated: false, data: 'Unauthorized'});
                 } else {
-                    res.send({isAuthenticated: true, data: decoded});
+                    User.find({_id: decoded._id}).then((user) => {
+                        const response = {
+                            username: decoded.username,
+                            email: decoded.email,
+                            isActive: user[0].isActive
+                        };
+                        
+                        res.send({isAuthenticated: true, data: response});
+                    });
                 }
             });
         } else {
