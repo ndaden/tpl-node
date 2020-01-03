@@ -52,7 +52,7 @@ app.use(morgan('dev'));
 const uploadManager = UploadService.init();
 
 app.get('/', (req, res) => {
-    return res.status(200).send({ 'message': 'Hello world from Express JS blah !' });
+    return res.status(200).send({ 'message': 'Welcome to the backend! version : 03/01/2020' });
 });
 
 app.post('/api/v1/reflections', [testMiddleware, ReflectionController.create]);
@@ -72,5 +72,5 @@ app.post('/api/auth', AuthenticationController.authenticate);
 app.get('/api/auth', AuthenticationController.test);
 
 app.listen(port, () => {
-    console.log(`Server running on port ${port}. version 03/01/2020`);
+    console.log(`Server running on port ${port}.`);
 });
