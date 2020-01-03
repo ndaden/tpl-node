@@ -110,9 +110,6 @@ const UserController = {
         });
 
     },
-    renewActivationCode(req, res) {
-
-    },
     getAll(req, res) {
         try {
             User.find().exec().then(result => res.send(result));
