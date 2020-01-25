@@ -33,11 +33,13 @@ const UploadService = {
           });
         
         const s3 = new aws.S3();
-        const ext = '';
+
+        let ext = '';
         const arr = originalName.split('.');
         if(arr.length > 1){
             ext = arr[arr.length - 1];
         }
+        
         var params = {
             ACL: 'public-read',
             Bucket: config.AWS_BUCKET,
