@@ -1,15 +1,13 @@
-import path from 'path';
-import fs from 'fs';
+import request from 'request';
+
+import * as config from '../service/config';
 
 const UploadController = {
     get(req, res) {
         const filename = req.params.id;
-        const filePath = path.resolve(__dirname, '../../dist/uploads/', filename)
-        if (fs.existsSync(filePath)) {
-            return res.sendFile(filePath);
-        }
+        const filePath = config.AWS_BASE_URL + 'userAvatar/' + filename;
 
-        return res.sendFile(path.resolve(__dirname, '../../dist/uploads/default.jpg'));
+        request(filePath).pipe(res);
     }
 };
 

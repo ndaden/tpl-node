@@ -1,3 +1,5 @@
+import UploadService from '../service/UploadService';
+
 const uploadMiddleware = (req, res, next) => {
     const file = req.file;
         if (!file) {
@@ -5,7 +7,10 @@ const uploadMiddleware = (req, res, next) => {
             error.httpStatusCode = 400;
             return next(error);
         }
-        res.send(file);
+        UploadService.uploadFileToAwsS3(req.file.path, req.file.originalname, (error, result) => {
+            res.send(result);
+        });
+        
 };
 
 export default uploadMiddleware;

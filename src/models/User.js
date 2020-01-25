@@ -16,6 +16,10 @@ const UserSchema = new Schema({
         type: String,
         trim: true
     },
+    avatarUrl: {
+        type: String,
+        trim: true
+    },
     isActive: {
         type: Boolean,
         default: false
