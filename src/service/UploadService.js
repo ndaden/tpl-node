@@ -33,11 +33,16 @@ const UploadService = {
           });
         
         const s3 = new aws.S3();
+        const ext = '';
+        const arr = originalName.split('.');
+        if(arr.length > 1){
+            ext = arr[arr.length - 1];
+        }
         var params = {
             ACL: 'public-read',
             Bucket: config.AWS_BUCKET,
             Body: fs.createReadStream(filepath),
-            Key: `userAvatar/${originalName}-${Date.now()}`
+            Key: `userAvatar/${arr[0]}-${Date.now()}.${ext}`
           };
 
         s3.upload(params, (error, data) => {
