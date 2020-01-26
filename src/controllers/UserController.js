@@ -1,6 +1,7 @@
 import User from '../models/User';
 import ActivationCode from '../models/ActivationCode';
 import { SendToken } from '../service/EmailService';
+import uploadService from '../service/UploadService';
 import {hashSync, compareSync} from 'bcryptjs';
 import mongoose from 'mongoose';
 import moment from 'moment';
@@ -109,6 +110,24 @@ const UserController = {
             res.status(500).send({ success: false, message : "Impossible d'effectuer cette action"})
         });
 
+    },
+    editAvatar(req, res) {
+        if(req.user){
+            User.find({ username: req.user.username}).exec().then((result) => {
+                const user = result[0];
+                console.log(user);
+                uploadService.uploadFileToAwsS3(req.file.path, req.file.originalname, (error, result) => {
+                    user.avatarUrl = result.path;
+                    user.save();
+                    res.status(200).send({ success: true, avatarUrl: result.path })
+                });
+            }).catch(error => {
+                console.log(error);
+                res.status(500).send({ success: false });
+            });
+        } else {
+            res.status(500).send({ success: false, message: 'erreur technique interne'});
+        }
     },
     getAll(req, res) {
         try {

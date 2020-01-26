@@ -64,6 +64,7 @@ app.get('/api/v1/users', [authMiddleware, UserController.getAll]);
 app.get('/api/v1/users/:id', UserController.getById);
 app.post('/api/v1/users', UserController.create);
 app.post('/api/v1/users/activate', UserController.activate );
+app.post('/api/v1/users/edit/avatar', [authMiddleware,uploadManager.single('avatar'), UserController.editAvatar] );
 
 app.post('/api/v1/upload',[authMiddleware, uploadManager.single('avatar'), uploadMiddleware]);
 app.get('/api/v1/file/:id', authMiddleware, UploadController.get);

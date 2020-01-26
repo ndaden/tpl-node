@@ -18,7 +18,8 @@ const AuthenticationService = {
                         const response = {
                             username: decoded.username,
                             email: decoded.email,
-                            isActive: user[0].isActive
+                            isActive: user[0].isActive,
+                            avatarUrl: user[0].avatarUrl,
                         };
                         return cb({ isAuthenticated: true, data: response });
                     });
