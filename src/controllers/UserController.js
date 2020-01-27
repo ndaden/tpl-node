@@ -111,6 +111,23 @@ const UserController = {
         });
 
     },
+    changePassword(req, res) {
+        if(req.user && req.body.oldPassword && req.body.newPassword && req.body.oldPassword !== req.body.newPassword) {
+            User.find({ username: req.user.username }).exec().then((result) => {
+                const user = result[0];
+
+                if(compareSync(req.body.oldPassword, user.password)){
+                    user.password = hashSync(req.body.newPassword, saltRounds);
+                    user.save();
+                    res.status(200).send({ success: true, message: 'Mot de passe modifié' });
+                } else {
+                    res.status(500).send({ success: false, message: 'Ancien mot de passe erroné' });
+                }
+            });
+        } else {
+            res.status(500).send({ success: false, message: 'Erreur technique' });
+        }
+    },
     editAvatar(req, res) {
         if(req.user){
             User.find({ username: req.user.username}).exec().then((result) => {
