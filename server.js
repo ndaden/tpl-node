@@ -9,7 +9,9 @@ import UploadService from './src/service/UploadService';
 import ReflectionController from './src/controllers/ReflectionController';
 import UserController from './src/controllers/UserController';
 import AuthenticationController from './src/controllers/AuthenticationController';
+import RoleController from './src/controllers/RoleController';
 import UploadController from './src/controllers/UploadController';
+import OcrController from './src/controllers/OcrController';
 
 import testMiddleware from './src/middleware/test.middleware';
 import authMiddleware from './src/middleware/auth.middleware';
@@ -67,8 +69,14 @@ app.post('/api/v1/users/activate', UserController.activate );
 app.post('/api/v1/users/edit/avatar', [authMiddleware,uploadManager.single('avatar'), UserController.editAvatar] );
 app.post('/api/v1/users/edit/password', [authMiddleware, UserController.changePassword]);
 
+app.post('/api/v1/roles', RoleController.create);
+app.post('/api/v1/roles/add', RoleController.addRoleToUser);
+app.post('/api/v1/roles/delete', RoleController.removeRoleToUser);
+
 app.post('/api/v1/upload',[authMiddleware, uploadManager.single('avatar'), uploadMiddleware]);
 app.get('/api/v1/file/:id', authMiddleware, UploadController.get);
+
+app.post('/api/v1/ocr', uploadManager.single('image'), OcrController.doOcr);
 
 app.post('/api/auth', AuthenticationController.authenticate);
 app.get('/api/auth', AuthenticationController.test);

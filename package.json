@@ -36,7 +36,8 @@
     "passport-local": "^1.0.0",
     "request": "2.88.0",
     "swagger-ui-express": "^4.0.7",
-    "sync-request": "^6.1.0"
+    "sync-request": "^6.1.0",
+    "tesseract.js": "^2.0.2"
   },
   "devDependencies": {
     "@babel/cli": "^7.5.0",

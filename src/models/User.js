@@ -31,6 +31,10 @@ const UserSchema = new Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'activationCode'
     },
+    roles: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'role'
+    }]
 });
 
 const User = mongoose.model("user", UserSchema);
