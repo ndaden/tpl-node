@@ -2,6 +2,7 @@ import multer from 'multer';
 import aws from 'aws-sdk';
 import fs from 'fs';
 import path from 'path';
+import jimp from 'jimp';
 
 import * as config from './config.js';
 
@@ -9,7 +10,7 @@ const UploadService = {
     init() {
         const storage = multer.diskStorage({
             destination: (req, file, cb) => cb(null, 'dist/uploads'),
-            filename: (req, file, cb) => cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname))
+            filename: (req, file, cb) => cb(null, file.originalname)
         });
 
         return multer({
@@ -60,6 +61,17 @@ const UploadService = {
                 cb(null, {path: locationUrl});
             }
         });
+    },
+    async optimizeImage(path, width, quality) {
+        const image = await jimp.read(path);
+        await image.grayscale();
+        await image.contrast(0.3);
+        await image.brightness(0.3);
+        await image.normalize();
+        await image.resize(width, jimp.AUTO);
+        await image.quality(quality);
+        
+        await image.writeAsync(path);
     }
 }
 
