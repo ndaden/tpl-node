@@ -3,21 +3,17 @@ import UploadService from '../service/UploadService';
 
 const OcrController = {
     async doOcr(req, res) {
-        // OCR INIT
-        const worker = createWorker({
-            logger: m => console.log(m),
-        });
+        const worker = req.worker;
+        if (worker) {
+            await UploadService.optimizeImage(req.file.path, 500, 90);
 
-        await worker.load();
-        await worker.loadLanguage('fra');
-        await worker.initialize('fra');
+            const { data: { text } } = await worker.recognize(req.file.path);
 
-        await UploadService.optimizeImage(req.file.path, 500, 90);
-
-        const { data: { text } } = await worker.recognize(req.file.path);
-
-        const lignes = text.split('\n');
-        res.status(200).send({ result : lignes, path: req.file.path });
+            const lignes = text.split('\n');
+            res.status(200).send({ result: lignes, path: req.file.path });
+        }else{
+            res.status(500).send({ success: false });
+        }
     },
 };
 

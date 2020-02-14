@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import morgan from 'morgan';
 import bodyParser from 'body-parser';
 import cors from 'cors';
+import { createWorker } from 'tesseract.js';
 
 import UploadService from './src/service/UploadService';
 
@@ -16,8 +17,7 @@ import OcrController from './src/controllers/OcrController';
 import testMiddleware from './src/middleware/test.middleware';
 import authMiddleware from './src/middleware/auth.middleware';
 import uploadMiddleware from './src/middleware/upload.middleware';
-
-
+import ocrMiddleware from './src/middleware/ocr.middleware';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -28,16 +28,15 @@ const mongoDbName = process.env.MONGODBNAME || 'users';
 const frontAppUri = process.env.FRONTAPPURI || 'http://localhost:8080';
 let uri = '';
 
-if (mongoUser && mongoPwd)
-{
+if (mongoUser && mongoPwd) {
     uri = `mongodb+srv://${mongoUser}:${mongoPwd}@${mongoUri}/${mongoDbName}?retryWrites=true&w=majority`;
 } else {
     uri = `mongodb://${mongoUri}/${mongoDbName}`;
 }
 
-mongoose.connect(uri, {useNewUrlParser: true })
-        .then(() => console.log('Connected to MongoDB !'))
-        .catch(error => console.log(error));
+mongoose.connect(uri, { useNewUrlParser: true })
+    .then(() => console.log('Connected to MongoDB !'))
+    .catch(error => console.log(error));
 
 mongoose.set('useCreateIndex', true);
 
@@ -53,6 +52,19 @@ app.use(morgan('dev'));
 
 const uploadManager = UploadService.init();
 
+// OCR INIT
+const worker = createWorker({
+    logger: m => console.log(m),
+});
+
+worker.load().then(() => {
+    worker.loadLanguage('fra').then(() => {
+        worker.initialize('fra');
+    });
+});
+
+
+
 app.get('/', (req, res) => {
     return res.status(200).send({ 'message': 'Welcome to the backend! version : 03/01/2020' });
 });
@@ -65,18 +77,18 @@ app.delete('/api/v1/reflections/:id', [testMiddleware, testMiddleware]);
 app.get('/api/v1/users', [authMiddleware, UserController.getAll]);
 app.get('/api/v1/users/:id', UserController.getById);
 app.post('/api/v1/users', UserController.create);
-app.post('/api/v1/users/activate', UserController.activate );
-app.post('/api/v1/users/edit/avatar', [authMiddleware,uploadManager.single('avatar'), UserController.editAvatar] );
+app.post('/api/v1/users/activate', UserController.activate);
+app.post('/api/v1/users/edit/avatar', [authMiddleware, uploadManager.single('avatar'), UserController.editAvatar]);
 app.post('/api/v1/users/edit/password', [authMiddleware, UserController.changePassword]);
 
 app.post('/api/v1/roles', RoleController.create);
 app.post('/api/v1/roles/add', RoleController.addRoleToUser);
 app.post('/api/v1/roles/delete', RoleController.removeRoleToUser);
 
-app.post('/api/v1/upload',[authMiddleware, uploadManager.single('avatar'), uploadMiddleware]);
-app.get('/api/v1/file/:id', authMiddleware, UploadController.get);
+app.post('/api/v1/upload', [authMiddleware, uploadManager.single('avatar'), uploadMiddleware]);
+app.get('/api/v1/file/:id', UploadController.get);
 
-app.post('/api/v1/ocr', uploadManager.single('image'), OcrController.doOcr);
+app.post('/api/v1/ocr', uploadManager.single('image'),ocrMiddleware(worker), OcrController.doOcr);
 
 app.post('/api/auth', AuthenticationController.authenticate);
 app.get('/api/auth', AuthenticationController.test);
