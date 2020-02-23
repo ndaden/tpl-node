@@ -3,21 +3,17 @@ import mongoose from 'mongoose';
 import morgan from 'morgan';
 import bodyParser from 'body-parser';
 import cors from 'cors';
-import { createWorker } from 'tesseract.js';
 
 import UploadService from './src/service/UploadService';
-
 import ReflectionController from './src/controllers/ReflectionController';
 import UserController from './src/controllers/UserController';
 import AuthenticationController from './src/controllers/AuthenticationController';
 import RoleController from './src/controllers/RoleController';
 import UploadController from './src/controllers/UploadController';
-import OcrController from './src/controllers/OcrController';
 
 import testMiddleware from './src/middleware/test.middleware';
 import authMiddleware from './src/middleware/auth.middleware';
 import uploadMiddleware from './src/middleware/upload.middleware';
-import ocrMiddleware from './src/middleware/ocr.middleware';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -52,21 +48,8 @@ app.use(morgan('dev'));
 
 const uploadManager = UploadService.init();
 
-// OCR INIT
-const worker = createWorker({
-    logger: m => console.log(m),
-});
-
-worker.load().then(() => {
-    worker.loadLanguage('fra').then(() => {
-        worker.initialize('fra');
-    });
-});
-
-
-
 app.get('/', (req, res) => {
-    return res.status(200).send({ 'message': 'Welcome to the backend! version : 03/01/2020' });
+    return res.status(200).send({ 'message': 'Welcome to the backend! version : 23/02/2020' });
 });
 
 app.post('/api/v1/reflections', [testMiddleware, ReflectionController.create]);
@@ -88,7 +71,9 @@ app.post('/api/v1/roles/delete', RoleController.removeRoleToUser);
 app.post('/api/v1/upload', [authMiddleware, uploadManager.single('avatar'), uploadMiddleware]);
 app.get('/api/v1/file/:id', UploadController.get);
 
+/* OCR: disabled
 app.post('/api/v1/ocr', uploadManager.single('image'),ocrMiddleware(worker), OcrController.doOcr);
+*/
 
 app.post('/api/auth', AuthenticationController.authenticate);
 app.get('/api/auth', AuthenticationController.test);
