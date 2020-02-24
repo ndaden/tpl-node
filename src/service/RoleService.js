@@ -9,25 +9,27 @@ const RoleService = {
     delete(code) {
         return Role.deleteOne({ roleCode: code });
     },
-    assignRoleToUser(username, roleCode) {
-        Role.findOne({ roleCode: roleCode}).exec((error, role) => {
-            User.findOne({ username: username }).exec((error, user) => {
+    async assignRoleToUser(username, roleCode) {
+        const role = await Role.findOne({ roleCode: roleCode}).exec();
+        if(role) {
+            const user = await User.findOne({ username: username }).exec();
+            if(user && user.roles.find(r => r == role.id) === undefined) {
                 user.roles = [...user.roles, role.id];
                 return user.save();
-            });
-        });     
+            }
+            
+            throw new Error('rôle déjà assigné');
+        }    
     },
-    unassignRoleToUser(username, roleCode) {
-        const r = [];
-        r.splice(r.indexOf(r.id), 1)
-        Role.findOne({ roleCode: roleCode}).exec((error, role) => {
-            console.log('role id:', role.id);
-            User.findOne({ username: username }).exec((error, user) => {
-                user.roles.splice(user.roles.indexOf(role.id), 1);
-                console.log('roles: ', user.roles[0]);
-                return user.save();
-            });
-        });  
+    async unassignRoleToUser(username, roleCode) {
+        const role = await Role.findOne({ roleCode: roleCode}).exec();
+        const user = await User.findOne({ username: username }).exec();
+        if(role && user) {
+            user.roles = user.roles.filter(r => r != role.id);
+            return user.save();
+        }
+
+        throw new Error('une erreur s\'est produite');
     }
 };
 
